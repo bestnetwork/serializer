@@ -185,6 +185,20 @@ class YamlDriver extends AbstractFileDriver
                     if (isset($pConfig['max_depth'])) {
                         $pMetadata->maxDepth = (int) $pConfig['max_depth'];
                     }
+                    
+                    if (isset($pConfig['recursion_groups'])) {
+                        $modifier = array();
+                        if (isset($pConfig['recursion_groups']['set'])) {
+                            $modifier['set'] = $pConfig['recursion_groups']['set'];
+                        }
+                        if (isset($pConfig['recursion_groups']['add'])) {
+                            $modifier['add'] = $pConfig['recursion_groups']['add'];
+                        }
+                        if (isset($pConfig['recursion_groups']['remove'])) {
+                            $modifier['remove'] = $pConfig['recursion_groups']['remove'];
+                        }
+                        $pMetadata->recursionGroups = $modifier;
+                    }
                 }
                 if ((ExclusionPolicy::NONE === $exclusionPolicy && ! $isExclude)
                         || (ExclusionPolicy::ALL === $exclusionPolicy && $isExpose)) {
@@ -262,7 +276,12 @@ class YamlDriver extends AbstractFileDriver
                     throw new RuntimeException('The "map" attribute must be set, and be an array for discriminators.');
                 }
 
-                $metadata->setDiscriminator($config['discriminator']['field_name'], $config['discriminator']['map']);
+                $discriminatorXmlAttribute = false;
+                if ( isset($config['discriminator']['xml_attribute'])) {
+                    $discriminatorXmlAttribute = $config['discriminator']['xml_attribute'];
+                }
+
+                $metadata->setDiscriminator($config['discriminator']['field_name'], $config['discriminator']['map'], $discriminatorXmlAttribute);
             }
         }
     }
